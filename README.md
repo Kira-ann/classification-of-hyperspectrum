@@ -1,4 +1,13 @@
-# classification-of-hyperspectrum
+# Интерпретация SHAP
+
+Приведем пример на одном объекте в качетве примера. У шкалы Ox E[f(X)] написано среднее предсказание для объекта. 
+
+![Image alt](https://github.com/Kira-ann/classification-of-hyperspectrum/raw/main/Data/explainers/Catboost/SHAP/object_0.png)
+
+{username} — ваш ник на ГитХабе;
+{repository} — репозиторий где хранятся картинки;
+{branch} — ветка репозитория;
+{path} — путь к месту нахождения картинки.
 
 При выделении 16 наиболее важных признаков методом SHAP получилось:
   

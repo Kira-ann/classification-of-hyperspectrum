@@ -8,23 +8,31 @@ import numpy as np
 import itertools
 import re
 
+
 class DataProcessor:
     def __init__(self, path):
-        self.dataset = pd.read_csv(path).drop(columns=['ds_name', 'dai', 'box_i', 'class_generalized', 'file_path', 'sort'])
+        self.dataset = pd.read_csv(path).drop(columns=['dai', 'box_i', 'class_generalized', 'file_path', 'sort'])
         self.dataset = self.dataset.rename(columns=lambda x: re.sub('[^A-Za-z0-9_]+', '', x))
         self.x = self.y = None
         self.x_train = self.x_test = self.y_train = self.y_test = None
 
     def split_data(self):
-        self.x = self.dataset.drop(columns=['class'])
-        self.y = self.dataset["class"]  # по какому столбцу идет классификация
-        le = LabelEncoder()
-        self.y = le.fit_transform(self.y)  # Преобразует 'c' в 0, 'е' в 1(для XGBoost, gam)
+        unique_ds = self.dataset['ds_name'].unique()
+        data_train = self.dataset.loc[self.dataset['ds_name'].isin(unique_ds[2:])]
+        data_test = self.dataset.loc[self.dataset['ds_name'].isin(unique_ds[:2])]
 
-        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(
-            self.x, self.y,
-            test_size=0.2,
-            random_state=42)  # для адекватног результата сравнения, при каждом запуске одинаковое деление выборок
+        self.x_train = data_train.drop(columns=['class'])
+        self.x_test = data_test.drop(columns=['class'])
+
+        self.y_train = data_train['class']
+        self.y_test = data_test['class']
+
+        le = LabelEncoder()
+        self.y_train = le.fit_transform(self.y_train)
+        self.y_test = le.fit_transform(self.y_test)
+
+        self.x_test = self.x_test.drop(columns=['ds_name'])
+        self.x_train = self.x_train.drop(columns=['ds_name'])
 
         return self
 

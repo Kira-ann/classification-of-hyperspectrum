@@ -11,12 +11,15 @@ import re
 
 class DataProcessor:
     def __init__(self, path):
-        self.dataset = pd.read_csv(path).drop(columns=['dai', 'box_i', 'class_generalized', 'file_path', 'sort'])
+        self.dataset = pd.read_csv(path, index_col=0).drop(columns=['dai', 'box_i', 'class_generalized', 'file_path', 'sort'])
         self.dataset = self.dataset.rename(columns=lambda x: re.sub('[^A-Za-z0-9_]+', '', x))
         self.x = self.y = None
         self.x_train = self.x_test = self.y_train = self.y_test = None
 
     def split_data(self):
+        self.x = self.dataset.drop(columns=['class'])
+        self.y = self.dataset['class']
+
         unique_ds = self.dataset['ds_name'].unique()
         data_train = self.dataset.loc[self.dataset['ds_name'].isin(unique_ds[2:])]
         data_test = self.dataset.loc[self.dataset['ds_name'].isin(unique_ds[:2])]
@@ -77,9 +80,9 @@ class DataProcessor:
             self.output_plot(i, current_class)
 
     @staticmethod
-    def plot_confusion_matrix(cm, classes):
+    def plot_confusion_matrix(cm, classes, name_model):
         plt.imshow(cm, interpolation='nearest')
-        plt.title('Confusion matrix')
+        plt.title(f'{name_model}_confusion matrix')
         plt.colorbar()
         tick_marks = np.arange(len(classes))
         plt.xticks(tick_marks, classes, rotation=45)
@@ -95,10 +98,10 @@ class DataProcessor:
         plt.tight_layout()
         plt.ylabel('True label')
         plt.xlabel('Predicted label')
-        plt.savefig("Data/metrics/conf_matrix.png")
+        plt.savefig(f"Data/metrics/{name_model}_conf_matrix.png")
         plt.close()
 
-    def plot_roc_curve(self, test_predictions_proba):
+    def plot_roc_curve(self, test_predictions_proba, name_model):
         plt.figure(figsize=(10, 8))
         fpr, tpr, thresholds = roc_curve(self.y_test, test_predictions_proba[:, 1], pos_label=1)
         lw = 4
@@ -109,18 +112,17 @@ class DataProcessor:
         plt.xlabel('False Positive Rate')
         plt.ylabel('True Positive Rate')
         plt.title('ROC curve')
-        plt.savefig("ROC.png")
+        plt.savefig(f"Data/metrics/{name_model}_ROC.png")
         plt.close()
 
-    def metrics_model(self, test_predictions, test_predictions_proba):
+    def metrics_model(self, test_predictions, test_predictions_proba, name_model):
         accuracy = accuracy_score(self.y_test, test_predictions)
         print("Доля правильных ответов: ", accuracy)
-
         cnf_matrix = confusion_matrix(self.y_test, test_predictions)
-        self.plot_confusion_matrix(cnf_matrix, classes=['0', '1'])
+        self.plot_confusion_matrix(cnf_matrix, classes=['0', '1'], name_model=name_model)
 
         report = classification_report(self.y_test, test_predictions, target_names=['0', '1'],
                                        digits=4)  # digits - кол-во знаков после ,
         print(report)
 
-        self.plot_roc_curve(test_predictions_proba)
+        self.plot_roc_curve(test_predictions_proba, name_model=name_model)

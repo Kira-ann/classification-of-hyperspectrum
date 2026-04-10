@@ -170,7 +170,7 @@ def using_shap(model, path):
 def using_model(model_name):
     base_path = f'Data/explainers/{model_name}'
     model = joblib.load(f'Models/{model_name.lower()}.pkl')
-    data.metrics_model(model.predict(data.x_test), model.predict_proba(data.x_test))
+    data.metrics_model(model.predict(data.x_test), model.predict_proba(data.x_test), model_name)
     if os.path.isdir(base_path):
         using_shap(model, base_path)
 
@@ -178,7 +178,4 @@ def using_model(model_name):
 if __name__ == '__main__':
     data = DataProcessor("Data/hyper_wheat_ds_ch_norm_prep_mode=dai.csv").split_data()
 
-    model = create_and_fit_lgb(data)
-    with open('Models/light.pkl', 'wb') as f:
-        pickle.dump(model, f)
-    # create_fit_gam(data)
+    create_fit_gam(data)

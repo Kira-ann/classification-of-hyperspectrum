@@ -50,6 +50,8 @@ def create_fit_gam(data):
     terms = s(0) + s(1) + s(2) + s(3) + s(4) + s(5) + s(6) + s(7) + s(8) + s(9)
 
     gam = LogisticGAM(terms).gridsearch(data.x_train.values, data.y_train)
+
+    joblib.dump(gam, f'Models/gam.pkl')
     return gam
 
 def use_grid_search_lgb(model):
@@ -161,13 +163,13 @@ if __name__ == '__main__':
     data = DataProcessor("Data/hyper_wheat_ds_ch_norm_prep_mode=dai.csv").split_data()
 
     #Catboost
-    using_model("CatBoost")
+    # using_model("CatBoost")
 
     # XGBoost
-    using_model("XGBoost")
+    # using_model("XGBoost")
 
     # Light
-    using_model("LightGBM")
+    # using_model("LightGBM")
 
     # GAM
-    create_fit_gam(data)
+    # create_fit_gam(data)

@@ -1,6 +1,5 @@
 from catboost import CatBoostClassifier, Pool
 from matplotlib import pyplot as plt
-import lime
 import json
 import shap
 import sklearn
@@ -51,26 +50,7 @@ def create_fit_gam(data):
     terms = s(0) + s(1) + s(2) + s(3) + s(4) + s(5) + s(6) + s(7) + s(8) + s(9)
 
     gam = LogisticGAM(terms).gridsearch(data.x_train.values, data.y_train)
-
-    fig, axs = plt.subplots(1, 3)
-    titles = cat_top_features[:3]
-
-    for i, ax in enumerate(axs):
-        XX = gam.generate_X_grid(term=i)
-        pdep, confi = gam.partial_dependence(term=i, width=0.95)
-
-        ax.plot(XX[:, i], pdep)
-        ax.plot(XX[:, i], confi, c="r", ls="--")
-        ax.set_title(titles[i])
-
-    plt.show()
-
-    print(gam.summary())
-
-    X_test_top = data.x_test[top_features]
-    y_pred = gam.predict(X_test_top.values)
-    accuracy = accuracy_score(data.y_test, y_pred)
-    print(f"Accuracy: {accuracy:.4f}")
+    return gam
 
 def use_grid_search_lgb(model):
     grid = {
@@ -167,15 +147,27 @@ def using_shap(model, path):
         pickle.dump(explanation, f)
 
 
-def using_model(model_name):
+def using_model(model_name, shap=True):
     base_path = f'Data/explainers/{model_name}'
     model = joblib.load(f'Models/{model_name.lower()}.pkl')
     data.metrics_model(model.predict(data.x_test), model.predict_proba(data.x_test), model_name)
-    if os.path.isdir(base_path):
+    print(f"Модель - {model_name}")
+    if os.path.isdir(base_path) and shap:
         using_shap(model, base_path)
 
 
 if __name__ == '__main__':
+    #использовать окружение - venv_11
     data = DataProcessor("Data/hyper_wheat_ds_ch_norm_prep_mode=dai.csv").split_data()
 
+    #Catboost
+    using_model("CatBoost")
+
+    # XGBoost
+    using_model("XGBoost")
+
+    # Light
+    using_model("LightGBM")
+
+    # GAM
     create_fit_gam(data)

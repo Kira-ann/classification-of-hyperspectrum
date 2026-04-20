@@ -1,6 +1,7 @@
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, roc_curve
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import roc_auc_score
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -104,6 +105,7 @@ class DataProcessor:
     def plot_roc_curve(self, test_predictions_proba, name_model):
         plt.figure(figsize=(10, 8))
         fpr, tpr, thresholds = roc_curve(self.y_test, test_predictions_proba[:, 1], pos_label=1)
+        auc_score = roc_auc_score(self.y_test, test_predictions_proba[:, 1])
         lw = 4
         plt.plot(fpr, tpr, lw=lw, label='ROC curve ')
         plt.plot([0, 1], [0, 1])

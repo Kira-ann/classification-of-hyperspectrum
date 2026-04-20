@@ -88,17 +88,17 @@ if __name__ == '__main__':
 
     # grid_search(dataset, y_test)
 
-    # model = KAN(width=[318, 159, 80, 20, 6, 2], grid=8, k=3)
-    #
-    # model.fit(
-    #     dataset,
-    #     opt="Adam",
-    #     steps=50,
-    #     lr=0.001,
-    #     loss_fn=torch.nn.CrossEntropyLoss(),
-    # )
+    model = KAN(width=[318, 159, 80, 20, 6, 2], grid=8, k=3)
 
-    # torch.save(model.state_dict(), 'Models/kan_state.pth')
+    model.fit(
+        dataset,
+        opt="Adam",
+        steps=50,
+        lr=0.001,
+        loss_fn=torch.nn.CrossEntropyLoss(),
+    )
+
+    torch.save(model.state_dict(), 'Models/kan_state.pth')
 
     model = KAN(width=[318, 159, 80, 20, 6, 2], grid=8, k=3)
     model.load_state_dict(torch.load('Models/kan_state.pth'))

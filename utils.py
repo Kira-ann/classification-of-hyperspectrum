@@ -17,13 +17,14 @@ class DataProcessor:
         self.x = self.y = None
         self.x_train = self.x_test = self.y_train = self.y_test = None
 
-    def split_data(self):
+    def split_data(self, test, train):
         self.x = self.dataset.drop(columns=['class'])
         self.y = self.dataset['class']
 
         unique_ds = self.dataset['ds_name'].unique()
-        data_train = self.dataset.loc[self.dataset['ds_name'].isin(unique_ds[2:])]
-        data_test = self.dataset.loc[self.dataset['ds_name'].isin(unique_ds[:2])]
+
+        data_train = self.dataset.loc[self.dataset['ds_name'].isin(unique_ds[train])]
+        data_test = self.dataset.loc[self.dataset['ds_name'].isin(unique_ds[test])]
 
         self.x_train = data_train.drop(columns=['class'])
         self.x_test = data_test.drop(columns=['class'])

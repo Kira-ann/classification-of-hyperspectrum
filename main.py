@@ -1,7 +1,9 @@
+import numpy as np
 from catboost import CatBoostClassifier, Pool
 from matplotlib import pyplot as plt
 import json
 import shap
+import itertools
 import sklearn
 from lightgbm import LGBMClassifier
 import xgboost as xgb
@@ -160,10 +162,21 @@ def using_model(model_name, shap=True):
 
 if __name__ == '__main__':
     #использовать окружение - venv_11
-    data = DataProcessor("Data/hyper_wheat_ds_ch_norm_prep_mode=dai.csv").split_data()
+    print("Модель - catboost")
+    combinations = list(itertools.combinations([0, 1, 2, 3, 4, 5], 2))
+    accuracy_all = []
+    for i in combinations:
+        train = list(set([i for i in range(0, 6)]) - set(i))
+        data = DataProcessor("Data/hyper_wheat_ds_ch_norm_prep_mode=dai.csv").split_data(list(i), train)
+        model = create_and_fit_catboost(data)
+        accuracy = accuracy_score(data.y_test, model.predict(data.x_test))
+        print("parametrs ", i, train, len(data.x_train), len(data.x_test), accuracy)
+        accuracy_all.append(accuracy)
+    print("Средняя точность - ", np.mean(accuracy_all))
 
     #Catboost
     # using_model("CatBoost")
+
 
     # XGBoost
     # using_model("XGBoost")
